@@ -113,6 +113,117 @@
             Expirés
           </button>
         </div>
+
+        <!-- Date Filters Row -->
+        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
+          <!-- Date de fin d'abonnement -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="flex items-center gap-2">
+              <label
+                class="text-xs font-medium text-slate-600 whitespace-nowrap"
+                >Date de fin :</label
+              >
+              <input
+                v-model="dateStart"
+                type="date"
+                class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue transition-all"
+              />
+              <span class="text-slate-400">→</span>
+              <input
+                v-model="dateEnd"
+                type="date"
+                class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue transition-all"
+              />
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto">
+              <button
+                @click="setDateFilter('today')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Aujourd'hui
+              </button>
+              <button
+                @click="setDateFilter('week')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Cette semaine
+              </button>
+              <button
+                @click="setDateFilter('month')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Ce mois
+              </button>
+              <button
+                @click="setDateFilter('nextMonth')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Mois prochain
+              </button>
+              <button
+                @click="clearDateFilter"
+                class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+
+          <!-- Date d'inscription -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="flex items-center gap-2">
+              <label
+                class="text-xs font-medium text-slate-600 whitespace-nowrap"
+                >Date d'inscription :</label
+              >
+              <input
+                v-model="inscriptionDateStart"
+                type="date"
+                class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue transition-all"
+              />
+              <span class="text-slate-400">→</span>
+              <input
+                v-model="inscriptionDateEnd"
+                type="date"
+                class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue transition-all"
+              />
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto">
+              <button
+                @click="setInscriptionDateFilter('today')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Aujourd'hui
+              </button>
+              <button
+                @click="setInscriptionDateFilter('week')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Cette semaine
+              </button>
+              <button
+                @click="setInscriptionDateFilter('month')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Ce mois
+              </button>
+              <button
+                @click="setInscriptionDateFilter('lastMonth')"
+                class="px-3 py-1.5 text-xs font-medium bg-white text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors whitespace-nowrap"
+              >
+                Mois dernier
+              </button>
+              <button
+                @click="clearInscriptionDateFilter"
+                class="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Table -->
@@ -148,13 +259,18 @@
               <th
                 class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
               >
+                Date d'inscription
+              </th>
+              <th
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+              >
                 Action
               </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 bg-white">
             <tr v-if="filteredClients.length === 0" class="hover:bg-slate-50">
-              <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+              <td colspan="7" class="px-6 py-8 text-center text-slate-400">
                 <div v-if="users.length === 0" class="space-y-2">
                   <p class="font-medium">Aucune donnée disponible</p>
                   <p class="text-xs">
@@ -231,6 +347,14 @@
                 </span>
                 <span v-else class="text-slate-400">—</span>
               </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-mono"
+              >
+                <span v-if="client.createdAt">
+                  {{ formatDate(client.createdAt) }}
+                </span>
+                <span v-else class="text-slate-400">—</span>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="text-xs font-medium"
@@ -303,6 +427,10 @@ const { users, loading, error, refresh, startAutoRefresh, stopAutoRefresh } =
 
 const searchQuery = ref("");
 const statusFilter = ref("all"); // Filtre par statut
+const dateStart = ref("");
+const dateEnd = ref("");
+const inscriptionDateStart = ref("");
+const inscriptionDateEnd = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 10; // 10 éléments par page pour les listes
 
@@ -316,13 +444,65 @@ const enrichedUsersList = computed(() => {
   }));
 });
 
-// Filtrer les clients selon la recherche et le statut
+// Filtrer les clients selon la recherche, le statut et les dates
 const filteredClients = computed(() => {
   let result = enrichedUsersList.value;
 
   // Filtre par statut
   if (statusFilter.value !== "all") {
     result = result.filter((client) => client.status === statusFilter.value);
+  }
+
+  // Filtre par date de fin d'abonnement
+  if (dateStart.value || dateEnd.value) {
+    result = result.filter((client) => {
+      if (!client.abonnement?.end) return false;
+      const endDate = new Date(client.abonnement.end);
+      endDate.setHours(0, 0, 0, 0);
+
+      if (dateStart.value && dateEnd.value) {
+        const start = new Date(dateStart.value);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(dateEnd.value);
+        end.setHours(23, 59, 59, 999);
+        return endDate >= start && endDate <= end;
+      } else if (dateStart.value) {
+        const start = new Date(dateStart.value);
+        start.setHours(0, 0, 0, 0);
+        return endDate >= start;
+      } else if (dateEnd.value) {
+        const end = new Date(dateEnd.value);
+        end.setHours(23, 59, 59, 999);
+        return endDate <= end;
+      }
+      return true;
+    });
+  }
+
+  // Filtre par date d'inscription
+  if (inscriptionDateStart.value || inscriptionDateEnd.value) {
+    result = result.filter((client) => {
+      if (!client.createdAt) return false;
+      const inscriptionDate = new Date(client.createdAt);
+      inscriptionDate.setHours(0, 0, 0, 0);
+
+      if (inscriptionDateStart.value && inscriptionDateEnd.value) {
+        const start = new Date(inscriptionDateStart.value);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(inscriptionDateEnd.value);
+        end.setHours(23, 59, 59, 999);
+        return inscriptionDate >= start && inscriptionDate <= end;
+      } else if (inscriptionDateStart.value) {
+        const start = new Date(inscriptionDateStart.value);
+        start.setHours(0, 0, 0, 0);
+        return inscriptionDate >= start;
+      } else if (inscriptionDateEnd.value) {
+        const end = new Date(inscriptionDateEnd.value);
+        end.setHours(23, 59, 59, 999);
+        return inscriptionDate <= end;
+      }
+      return true;
+    });
   }
 
   // Recherche par nom/email/store/noms des admins
@@ -345,6 +525,101 @@ const filteredClients = computed(() => {
   return result;
 });
 
+// Fonctions pour les filtres de date rapides
+const setDateFilter = (period) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  switch (period) {
+    case "today":
+      dateStart.value = formatDateForInput(today);
+      dateEnd.value = formatDateForInput(today);
+      break;
+    case "week":
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      dateStart.value = formatDateForInput(weekStart);
+      dateEnd.value = formatDateForInput(weekEnd);
+      break;
+    case "month":
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      dateStart.value = formatDateForInput(monthStart);
+      dateEnd.value = formatDateForInput(monthEnd);
+      break;
+    case "nextMonth":
+      const nextMonthStart = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        1
+      );
+      const nextMonthEnd = new Date(
+        today.getFullYear(),
+        today.getMonth() + 2,
+        0
+      );
+      dateStart.value = formatDateForInput(nextMonthStart);
+      dateEnd.value = formatDateForInput(nextMonthEnd);
+      break;
+  }
+};
+
+const clearDateFilter = () => {
+  dateStart.value = "";
+  dateEnd.value = "";
+};
+
+// Fonctions pour les filtres de date d'inscription rapides
+const setInscriptionDateFilter = (period) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  switch (period) {
+    case "today":
+      inscriptionDateStart.value = formatDateForInput(today);
+      inscriptionDateEnd.value = formatDateForInput(today);
+      break;
+    case "week":
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      inscriptionDateStart.value = formatDateForInput(weekStart);
+      inscriptionDateEnd.value = formatDateForInput(weekEnd);
+      break;
+    case "month":
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      inscriptionDateStart.value = formatDateForInput(monthStart);
+      inscriptionDateEnd.value = formatDateForInput(monthEnd);
+      break;
+    case "lastMonth":
+      const lastMonthStart = new Date(
+        today.getFullYear(),
+        today.getMonth() - 1,
+        1
+      );
+      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+      inscriptionDateStart.value = formatDateForInput(lastMonthStart);
+      inscriptionDateEnd.value = formatDateForInput(lastMonthEnd);
+      break;
+  }
+};
+
+const clearInscriptionDateFilter = () => {
+  inscriptionDateStart.value = "";
+  inscriptionDateEnd.value = "";
+};
+
+const formatDateForInput = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 // Pagination (10 éléments par page)
 const paginatedClients = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
@@ -363,10 +638,20 @@ const goToPage = (page) => {
   }
 };
 
-// Réinitialiser la page quand la recherche ou le filtre change
-watch([searchQuery, statusFilter], () => {
-  currentPage.value = 1;
-});
+// Réinitialiser la page quand la recherche, le filtre ou les dates changent
+watch(
+  [
+    searchQuery,
+    statusFilter,
+    dateStart,
+    dateEnd,
+    inscriptionDateStart,
+    inscriptionDateEnd,
+  ],
+  () => {
+    currentPage.value = 1;
+  }
+);
 
 const getClientName = (client) => {
   if (client.name) return client.name;

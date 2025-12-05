@@ -7,17 +7,12 @@
       <p class="text-slate-600 mb-6">
         Bienvenue sur le dashboard de suivi clientèle.
       </p>
-      <NuxtLink
-        to="/dashboard"
+      <a
+        href="/dashboard"
         class="inline-flex items-center gap-2 bg-orion-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-900 transition-colors shadow-lg cursor-pointer"
       >
         Accéder au Dashboard
-      </NuxtLink>
-      <p class="text-xs text-slate-400 mt-4">
-        <a href="/dashboard" class="underline"
-          >Ou cliquez ici pour accéder directement</a
-        >
-      </p>
+      </a>
     </div>
   </div>
 </template>
