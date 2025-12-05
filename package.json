@@ -1,0 +1,26 @@
+{
+  "name": "orionsuivi",
+  "version": "1.0.0",
+  "description": "Dashboard de Suivi Clientèle Orion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@phosphor-icons/vue": "^2.2.1",
+    "chart.js": "^4.5.1",
+    "nuxt": "^4.2.1",
+    "vue-chartjs": "^5.3.3"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
+  }
+}
