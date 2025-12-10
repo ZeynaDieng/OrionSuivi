@@ -50,6 +50,15 @@
               }}</span>
               clients
             </span>
+
+            <button
+              @click="handleExport"
+              class="px-4 py-2 text-sm font-medium bg-orion-primary text-white rounded-lg hover:bg-slate-900 transition-colors flex items-center gap-2 whitespace-nowrap"
+              title="Exporter les données en CSV"
+            >
+              <i class="ph ph-download text-lg"></i>
+              Exporter CSV
+            </button>
           </div>
 
           <div class="relative">
@@ -57,7 +66,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher par nom, store, email..."
-              class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue w-full sm:w-64 transition-all"
+              class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue w-full sm:w-64 transition-all bg-white text-slate-900 placeholder-slate-400"
             />
             <span
               class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
@@ -421,9 +430,9 @@ import {
   getJoursRestants,
   getActionRecommandee,
 } from "~/utils/statusLogic";
+import { useUsers } from "~/composables/useUsers";
 
-const { users, loading, error, refresh, startAutoRefresh, stopAutoRefresh } =
-  useUsers();
+const { users, loading, error, refresh } = useUsers();
 
 const searchQuery = ref("");
 const statusFilter = ref("all"); // Filtre par statut
@@ -431,6 +440,8 @@ const dateStart = ref("");
 const dateEnd = ref("");
 const inscriptionDateStart = ref("");
 const inscriptionDateEnd = ref("");
+const sortColumn = ref(null);
+const sortDirection = ref("asc");
 const currentPage = ref(1);
 const itemsPerPage = 10; // 10 éléments par page pour les listes
 
@@ -620,11 +631,62 @@ const formatDateForInput = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// Tri des clients
+const sortedClients = computed(() => {
+  if (!sortColumn.value) return filteredClients.value;
+
+  const sorted = [...filteredClients.value].sort((a, b) => {
+    let aValue, bValue;
+
+    switch (sortColumn.value) {
+      case "name":
+        aValue = getClientName(a).toLowerCase();
+        bValue = getClientName(b).toLowerCase();
+        break;
+      case "status":
+        aValue = a.status || "";
+        bValue = b.status || "";
+        break;
+      case "joursRestants":
+        aValue = a.joursRestants ?? Infinity;
+        bValue = b.joursRestants ?? Infinity;
+        break;
+      case "abonnement.end":
+        aValue = a.abonnement?.end ? new Date(a.abonnement.end).getTime() : 0;
+        bValue = b.abonnement?.end ? new Date(b.abonnement.end).getTime() : 0;
+        break;
+      case "createdAt":
+        aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortDirection.value === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection.value === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  return sorted;
+});
+
+// Fonction pour trier par colonne
+const sortBy = (column) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = "asc";
+  }
+  currentPage.value = 1; // Réinitialiser à la première page
+};
+
 // Pagination (10 éléments par page)
 const paginatedClients = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return filteredClients.value.slice(start, end);
+  return sortedClients.value.slice(start, end);
 });
 
 const totalPages = computed(() => {
@@ -703,18 +765,31 @@ const getActionClass = (action) => {
   return "text-slate-500";
 };
 
-// Démarrer le rafraîchissement automatique au montage
+// Export de données
+const { exportClientsToCSV } = useExport();
+const { success, error: showError } = useToast();
+
+const handleExport = () => {
+  try {
+    exportClientsToCSV(
+      sortedClients.value,
+      `tous_clients_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    success(
+      `Export réussi : ${sortedClients.value.length} client(s) exporté(s)`
+    );
+  } catch (err) {
+    console.error("Erreur lors de l'export:", err);
+    showError("Erreur lors de l'export des données");
+  }
+};
+
+// Charger les données au montage
 onMounted(async () => {
   try {
     await refresh();
-    startAutoRefresh();
   } catch (err) {
     console.error("Erreur lors du chargement initial:", err);
   }
-});
-
-// Arrêter le rafraîchissement automatique lors du démontage
-onUnmounted(() => {
-  stopAutoRefresh();
 });
 </script>

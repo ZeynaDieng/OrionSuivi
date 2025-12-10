@@ -3,7 +3,9 @@
     class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
   >
     <div class="p-6 border-b border-slate-100">
-      <h3 class="text-lg font-bold text-orion-primary flex items-center gap-2">
+      <h3
+        class="text-lg font-bold text-orion-primary flex items-center gap-2"
+      >
         <i class="ph ph-chart-line text-xl"></i>
         Statistiques Financières
       </h3>
@@ -14,31 +16,41 @@
       <div>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div class="bg-slate-50 rounded-lg p-4">
-            <p class="text-xs text-slate-500 mb-1">Total Factures</p>
+            <p class="text-xs text-slate-500 mb-1">
+              Total Factures
+            </p>
             <p class="text-2xl font-bold text-orion-primary">
               {{ formatNumber(advancedStats.financial.totalFactures) }}
             </p>
           </div>
           <div class="bg-slate-50 rounded-lg p-4">
-            <p class="text-xs text-slate-500 mb-1">Total Transactions</p>
+            <p class="text-xs text-slate-500 mb-1">
+              Total Transactions
+            </p>
             <p class="text-2xl font-bold text-orion-blue">
               {{ formatNumber(advancedStats.financial.totalTransactions) }}
             </p>
           </div>
           <div class="bg-slate-50 rounded-lg p-4">
-            <p class="text-xs text-slate-500 mb-1">Factures Impayées</p>
+            <p class="text-xs text-slate-500 mb-1">
+              Factures Impayées
+            </p>
             <p class="text-2xl font-bold text-orion-danger">
               {{ formatNumber(advancedStats.financial.totalImpayees) }}
             </p>
           </div>
           <div class="bg-slate-50 rounded-lg p-4">
-            <p class="text-xs text-slate-500 mb-1">Moy. Factures</p>
+            <p class="text-xs text-slate-500 mb-1">
+              Moy. Factures
+            </p>
             <p class="text-2xl font-bold text-slate-700">
               {{ formatNumber(advancedStats.financial.moyenneFactures) }}
             </p>
           </div>
           <div class="bg-slate-50 rounded-lg p-4">
-            <p class="text-xs text-slate-500 mb-1">Moy. Transactions</p>
+            <p class="text-xs text-slate-500 mb-1">
+              Moy. Transactions
+            </p>
             <p class="text-2xl font-bold text-slate-700">
               {{ formatNumber(advancedStats.financial.moyenneTransactions) }}
             </p>

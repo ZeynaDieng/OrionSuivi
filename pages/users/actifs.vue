@@ -50,6 +50,15 @@
               }}</span>
               clients actifs
             </span>
+
+            <button
+              @click="handleExport"
+              class="px-4 py-2 text-sm font-medium bg-orion-primary text-white rounded-lg hover:bg-slate-900 transition-colors flex items-center gap-2 whitespace-nowrap"
+              title="Exporter les données en CSV"
+            >
+              <i class="ph ph-download text-lg"></i>
+              Exporter CSV
+            </button>
           </div>
 
           <div class="relative">
@@ -232,9 +241,25 @@
           <thead class="bg-slate-50">
             <tr>
               <th
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                @click="sortBy('name')"
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               >
-                Client
+                <div class="flex items-center gap-2">
+                  Client
+                  <i
+                    v-if="sortColumn === 'name'"
+                    :class="
+                      sortDirection === 'asc'
+                        ? 'ph ph-caret-up'
+                        : 'ph ph-caret-down'
+                    "
+                    class="text-orion-primary"
+                  ></i>
+                  <i
+                    v-else
+                    class="ph ph-caret-up-down text-slate-400 opacity-50"
+                  ></i>
+                </div>
               </th>
               <th
                 class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
@@ -242,24 +267,88 @@
                 Admins
               </th>
               <th
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                @click="sortBy('status')"
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               >
-                Statut
+                <div class="flex items-center gap-2">
+                  Statut
+                  <i
+                    v-if="sortColumn === 'status'"
+                    :class="
+                      sortDirection === 'asc'
+                        ? 'ph ph-caret-up'
+                        : 'ph ph-caret-down'
+                    "
+                    class="text-orion-primary"
+                  ></i>
+                  <i
+                    v-else
+                    class="ph ph-caret-up-down text-slate-400 opacity-50"
+                  ></i>
+                </div>
               </th>
               <th
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                @click="sortBy('joursRestants')"
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               >
-                Jours restants
+                <div class="flex items-center gap-2">
+                  Jours restants
+                  <i
+                    v-if="sortColumn === 'joursRestants'"
+                    :class="
+                      sortDirection === 'asc'
+                        ? 'ph ph-caret-up'
+                        : 'ph ph-caret-down'
+                    "
+                    class="text-orion-primary"
+                  ></i>
+                  <i
+                    v-else
+                    class="ph ph-caret-up-down text-slate-400 opacity-50"
+                  ></i>
+                </div>
               </th>
               <th
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                @click="sortBy('abonnement.end')"
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               >
-                Date fin
+                <div class="flex items-center gap-2">
+                  Date fin
+                  <i
+                    v-if="sortColumn === 'abonnement.end'"
+                    :class="
+                      sortDirection === 'asc'
+                        ? 'ph ph-caret-up'
+                        : 'ph ph-caret-down'
+                    "
+                    class="text-orion-primary"
+                  ></i>
+                  <i
+                    v-else
+                    class="ph ph-caret-up-down text-slate-400 opacity-50"
+                  ></i>
+                </div>
               </th>
               <th
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                @click="sortBy('createdAt')"
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
               >
-                Date d'inscription
+                <div class="flex items-center gap-2">
+                  Date d'inscription
+                  <i
+                    v-if="sortColumn === 'createdAt'"
+                    :class="
+                      sortDirection === 'asc'
+                        ? 'ph ph-caret-up'
+                        : 'ph ph-caret-down'
+                    "
+                    class="text-orion-primary"
+                  ></i>
+                  <i
+                    v-else
+                    class="ph ph-caret-up-down text-slate-400 opacity-50"
+                  ></i>
+                </div>
               </th>
               <th
                 class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
@@ -421,15 +510,9 @@ import {
   getJoursRestants,
   getActionRecommandee,
 } from "~/utils/statusLogic";
+import { useUsers } from "~/composables/useUsers";
 
-const {
-  activeUsers,
-  loading,
-  error,
-  refresh,
-  startAutoRefresh,
-  stopAutoRefresh,
-} = useUsers();
+const { activeUsers, loading, error, refresh } = useUsers();
 
 const searchQuery = ref("");
 const statusFilter = ref("all"); // Filtre par statut
@@ -437,6 +520,8 @@ const dateStart = ref("");
 const dateEnd = ref("");
 const inscriptionDateStart = ref("");
 const inscriptionDateEnd = ref("");
+const sortColumn = ref(null);
+const sortDirection = ref("asc");
 const currentPage = ref(1);
 const itemsPerPage = 10; // 10 éléments par page pour les listes
 
@@ -626,11 +711,62 @@ const formatDateForInput = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// Tri des clients
+const sortedClients = computed(() => {
+  if (!sortColumn.value) return filteredClients.value;
+
+  const sorted = [...filteredClients.value].sort((a, b) => {
+    let aValue, bValue;
+
+    switch (sortColumn.value) {
+      case "name":
+        aValue = getClientName(a).toLowerCase();
+        bValue = getClientName(b).toLowerCase();
+        break;
+      case "status":
+        aValue = a.status || "";
+        bValue = b.status || "";
+        break;
+      case "joursRestants":
+        aValue = a.joursRestants ?? Infinity;
+        bValue = b.joursRestants ?? Infinity;
+        break;
+      case "abonnement.end":
+        aValue = a.abonnement?.end ? new Date(a.abonnement.end).getTime() : 0;
+        bValue = b.abonnement?.end ? new Date(b.abonnement.end).getTime() : 0;
+        break;
+      case "createdAt":
+        aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortDirection.value === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection.value === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  return sorted;
+});
+
+// Fonction pour trier par colonne
+const sortBy = (column) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = "asc";
+  }
+  currentPage.value = 1; // Réinitialiser à la première page
+};
+
 // Pagination (10 éléments par page)
 const paginatedClients = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return filteredClients.value.slice(start, end);
+  return sortedClients.value.slice(start, end);
 });
 
 const totalPages = computed(() => {
@@ -709,18 +845,31 @@ const getActionClass = (action) => {
   return "text-slate-500";
 };
 
-// Démarrer le rafraîchissement automatique au montage
+// Export de données
+const { exportClientsToCSV } = useExport();
+const { success, error: showError } = useToast();
+
+const handleExport = () => {
+  try {
+    exportClientsToCSV(
+      sortedClients.value,
+      `clients_actifs_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    success(
+      `Export réussi : ${sortedClients.value.length} client(s) exporté(s)`
+    );
+  } catch (err) {
+    console.error("Erreur lors de l'export:", err);
+    showError("Erreur lors de l'export des données");
+  }
+};
+
+// Charger les données au montage
 onMounted(async () => {
   try {
     await refresh();
-    startAutoRefresh();
   } catch (err) {
     console.error("Erreur lors du chargement initial:", err);
   }
-});
-
-// Arrêter le rafraîchissement automatique lors du démontage
-onUnmounted(() => {
-  stopAutoRefresh();
 });
 </script>

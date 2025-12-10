@@ -2,14 +2,30 @@
   <div class="p-4 md:p-8 lg:p-10 max-w-[1600px] mx-auto">
     <!-- Header -->
     <header class="mb-10">
-      <h1
-        class="text-2xl md:text-3xl font-bold text-orion-primary tracking-tight mb-2"
+      <div
+        class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
       >
-        Dashboard Suivi Clientèle
-      </h1>
-      <p class="text-slate-500 font-medium">
-        Vue d'overview de l'activité en temps réel
-      </p>
+        <div>
+          <h1
+            class="text-2xl md:text-3xl font-bold text-orion-primary tracking-tight mb-2"
+          >
+            Dashboard Suivi Clientèle
+          </h1>
+          <p class="text-slate-500 font-medium">
+            Vue d'overview de l'activité en temps réel
+          </p>
+        </div>
+        <div
+          v-if="lastUpdate"
+          class="flex items-center gap-2 text-xs text-slate-500"
+        >
+          <i class="ph ph-clock text-sm"></i>
+          <span>
+            Dernière MAJ :
+            {{ formatLastUpdate(lastUpdate) }}
+          </span>
+        </div>
+      </div>
     </header>
 
     <!-- Loading State with Skeletons -->
@@ -107,50 +123,61 @@
           <div
             class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
-            <div class="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+            <div class="flex items-center gap-3">
+              <div class="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+                <button
+                  @click="filter = 'all'"
+                  :class="
+                    filter === 'all'
+                      ? 'bg-orion-primary text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  "
+                  class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap"
+                >
+                  Tous
+                </button>
+                <button
+                  @click="filter = 'actif'"
+                  :class="
+                    filter === 'actif'
+                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  "
+                  class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
+                >
+                  Actifs
+                </button>
+                <button
+                  @click="filter = 'proche_fin'"
+                  :class="
+                    filter === 'proche_fin'
+                      ? 'bg-amber-100 text-amber-800 border-amber-200'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  "
+                  class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
+                >
+                  Proche fin
+                </button>
+                <button
+                  @click="filter = 'expire'"
+                  :class="
+                    filter === 'expire'
+                      ? 'bg-red-100 text-red-800 border-red-200'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  "
+                  class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
+                >
+                  Expirés
+                </button>
+              </div>
+
               <button
-                @click="filter = 'all'"
-                :class="
-                  filter === 'all'
-                    ? 'bg-orion-primary text-white'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                "
-                class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap"
+                @click="handleExport"
+                class="px-4 py-2 text-sm font-medium bg-orion-primary text-white rounded-lg hover:bg-slate-900 transition-colors flex items-center gap-2 whitespace-nowrap"
+                title="Exporter les données en CSV"
               >
-                Tous
-              </button>
-              <button
-                @click="filter = 'actif'"
-                :class="
-                  filter === 'actif'
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                "
-                class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
-              >
-                Actifs
-              </button>
-              <button
-                @click="filter = 'proche_fin'"
-                :class="
-                  filter === 'proche_fin'
-                    ? 'bg-amber-100 text-amber-800 border-amber-200'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                "
-                class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
-              >
-                Proche fin
-              </button>
-              <button
-                @click="filter = 'expire'"
-                :class="
-                  filter === 'expire'
-                    ? 'bg-red-100 text-red-800 border-red-200'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                "
-                class="px-4 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap"
-              >
-                Expirés
+                <i class="ph ph-download text-lg"></i>
+                Exporter CSV
               </button>
             </div>
 
@@ -159,7 +186,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Rechercher par nom, store..."
-                class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue w-full sm:w-64 transition-all"
+                class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-blue focus:border-orion-blue w-full sm:w-64 transition-all bg-white text-slate-900 placeholder-slate-400"
               />
               <span
                 class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
@@ -286,24 +313,88 @@
             <thead class="bg-slate-50">
               <tr>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                  @click="sortBy('name')"
+                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 >
-                  Client
+                  <div class="flex items-center gap-2">
+                    Client
+                    <i
+                      v-if="sortColumn === 'name'"
+                      :class="
+                        sortDirection === 'asc'
+                          ? 'ph ph-caret-up'
+                          : 'ph ph-caret-down'
+                      "
+                      class="text-orion-primary"
+                    ></i>
+                    <i
+                      v-else
+                      class="ph ph-caret-up-down text-slate-400 opacity-0 group-hover:opacity-100"
+                    ></i>
+                  </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                  @click="sortBy('status')"
+                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 >
-                  Statut
+                  <div class="flex items-center gap-2">
+                    Statut
+                    <i
+                      v-if="sortColumn === 'status'"
+                      :class="
+                        sortDirection === 'asc'
+                          ? 'ph ph-caret-up'
+                          : 'ph ph-caret-down'
+                      "
+                      class="text-orion-primary"
+                    ></i>
+                    <i
+                      v-else
+                      class="ph ph-caret-up-down text-slate-400 opacity-0 group-hover:opacity-100"
+                    ></i>
+                  </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                  @click="sortBy('joursRestants')"
+                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 >
-                  Jours restants
+                  <div class="flex items-center gap-2">
+                    Jours restants
+                    <i
+                      v-if="sortColumn === 'joursRestants'"
+                      :class="
+                        sortDirection === 'asc'
+                          ? 'ph ph-caret-up'
+                          : 'ph ph-caret-down'
+                      "
+                      class="text-orion-primary"
+                    ></i>
+                    <i
+                      v-else
+                      class="ph ph-caret-up-down text-slate-400 opacity-0 group-hover:opacity-100"
+                    ></i>
+                  </div>
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
+                  @click="sortBy('createdAt')"
+                  class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
                 >
-                  Date d'inscription
+                  <div class="flex items-center gap-2">
+                    Date d'inscription
+                    <i
+                      v-if="sortColumn === 'createdAt'"
+                      :class="
+                        sortDirection === 'asc'
+                          ? 'ph ph-caret-up'
+                          : 'ph ph-caret-down'
+                      "
+                      class="text-orion-primary"
+                    ></i>
+                    <i
+                      v-else
+                      class="ph ph-caret-up-down text-slate-400 opacity-0 group-hover:opacity-100"
+                    ></i>
+                  </div>
                 </th>
                 <th
                   class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
@@ -412,13 +503,13 @@
 
         <!-- Pagination -->
         <div
-          v-if="filteredClients.length > itemsPerPage"
+          v-if="sortedClients.length > itemsPerPage"
           class="p-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50"
         >
           <div class="text-sm text-slate-600">
             Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
-            {{ Math.min(currentPage * itemsPerPage, filteredClients.length) }}
-            sur {{ filteredClients.length }} résultats
+            {{ Math.min(currentPage * itemsPerPage, sortedClients.length) }}
+            sur {{ sortedClients.length }} résultats
           </div>
           <div class="flex items-center gap-2">
             <button
@@ -450,6 +541,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de relance -->
+    <RelanceModal
+      :is-open="showRelanceModal"
+      :client="selectedClient"
+      @close="showRelanceModal = false"
+      @confirm="handleRelanceConfirm"
+    />
   </div>
 </template>
 
@@ -460,6 +559,8 @@ definePageMeta({
   layout: "default",
 });
 
+import { useUsers } from "~/composables/useUsers";
+
 const {
   users,
   stats,
@@ -469,8 +570,7 @@ const {
   loading,
   error,
   refresh,
-  startAutoRefresh,
-  stopAutoRefresh,
+  lastUpdate,
 } = useUsers();
 
 const filter = ref("all");
@@ -479,23 +579,19 @@ const dateStart = ref("");
 const dateEnd = ref("");
 const inscriptionDateStart = ref("");
 const inscriptionDateEnd = ref("");
+const sortColumn = ref(null);
+const sortDirection = ref("asc");
 const currentPage = ref(1);
 const itemsPerPage = 5; // 5 éléments par page pour le dashboard
 
-// Démarrer le rafraîchissement automatique au montage
+// Charger les données au montage
 onMounted(async () => {
   try {
     await refresh();
-    startAutoRefresh();
   } catch (err) {
     console.error("Erreur lors du chargement initial:", err);
     // La page s'affichera quand même avec les valeurs par défaut
   }
-});
-
-// Arrêter le rafraîchissement automatique lors du démontage
-onUnmounted(() => {
-  stopAutoRefresh();
 });
 
 // Filtrer les clients selon le filtre, la recherche et les dates
@@ -674,15 +770,66 @@ const formatDateForInput = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// Tri des clients
+const sortedClients = computed(() => {
+  if (!sortColumn.value) return filteredClients.value;
+
+  const sorted = [...filteredClients.value].sort((a, b) => {
+    let aValue, bValue;
+
+    switch (sortColumn.value) {
+      case "name":
+        aValue = getClientName(a).toLowerCase();
+        bValue = getClientName(b).toLowerCase();
+        break;
+      case "status":
+        aValue = a.status || "";
+        bValue = b.status || "";
+        break;
+      case "joursRestants":
+        aValue = a.joursRestants ?? Infinity;
+        bValue = b.joursRestants ?? Infinity;
+        break;
+      case "createdAt":
+        aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        break;
+      default:
+        return 0;
+    }
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortDirection.value === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    } else {
+      return sortDirection.value === "asc" ? aValue - bValue : bValue - aValue;
+    }
+  });
+
+  return sorted;
+});
+
+// Fonction pour trier par colonne
+const sortBy = (column) => {
+  if (sortColumn.value === column) {
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn.value = column;
+    sortDirection.value = "asc";
+  }
+  currentPage.value = 1; // Réinitialiser à la première page
+};
+
 // Pagination pour le dashboard (5 éléments par page)
 const paginatedClients = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return filteredClients.value.slice(start, end);
+  return sortedClients.value.slice(start, end);
 });
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredClients.value.length / itemsPerPage);
+  return Math.ceil(sortedClients.value.length / itemsPerPage);
 });
 
 const goToPage = (page) => {
@@ -774,9 +921,65 @@ const formatDate = (dateString) => {
   });
 };
 
+const formatLastUpdate = (timestamp) => {
+  if (!timestamp) return "—";
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+
+  if (diffSec < 60) {
+    return `il y a ${diffSec} seconde${diffSec > 1 ? "s" : ""}`;
+  } else if (diffMin < 60) {
+    return `il y a ${diffMin} minute${diffMin > 1 ? "s" : ""}`;
+  } else if (diffHour < 24) {
+    return `il y a ${diffHour} heure${diffHour > 1 ? "s" : ""}`;
+  } else {
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+};
+
+const { success, error: showError } = useToast();
+
+// Modal de relance
+const showRelanceModal = ref(false);
+const selectedClient = ref(null);
+
 const handleRelancer = (client) => {
-  // TODO: Implémenter la logique de relance
-  console.log("Relancer client:", client);
-  alert(`Relance de ${getClientName(client)}`);
+  selectedClient.value = client;
+  showRelanceModal.value = true;
+};
+
+const handleRelanceConfirm = (data) => {
+  // TODO: Implémenter la logique de relance avec l'API
+  console.log("Relance confirmée:", data);
+  success(
+    `Relance envoyée à ${getClientName(data.client)}${
+      data.note ? " avec note" : ""
+    }`
+  );
+};
+
+// Export de données
+const { exportClientsToCSV } = useExport();
+
+const handleExport = () => {
+  try {
+    exportClientsToCSV(
+      sortedClients.value,
+      `dashboard_clients_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    success(
+      `Export réussi : ${sortedClients.value.length} client(s) exporté(s)`
+    );
+  } catch (err) {
+    console.error("Erreur lors de l'export:", err);
+    showError("Erreur lors de l'export des données");
+  }
 };
 </script>

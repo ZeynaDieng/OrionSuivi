@@ -19,6 +19,7 @@ export const useUsers = () => {
   const activeUsers = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  const lastUpdate = ref(null); // Timestamp de la dernière mise à jour
 
   // Cache simple en mémoire pour éviter les appels API inutiles
   const cache = ref({
@@ -31,9 +32,7 @@ export const useUsers = () => {
   // Flag pour éviter les appels multiples simultanés
   const isFetching = ref(false);
 
-  // Interval pour le rafraîchissement automatique (2 minutes)
-  const refreshInterval = ref(null);
-  const refreshIntervalMs = 120000; // 2 minutes (120 secondes) au lieu de 30 secondes
+  // Le rafraîchissement automatique a été désactivé
 
   /**
    * Extrait la liste des utilisateurs depuis la réponse API
@@ -306,40 +305,7 @@ export const useUsers = () => {
     }
   };
 
-  /**
-   * Démarre le rafraîchissement automatique toutes les 2 minutes
-   */
-  const startAutoRefresh = () => {
-    // Nettoyer l'interval existant si présent pour éviter les intervalles multiples
-    if (refreshInterval.value) {
-      console.log("🛑 Arrêt de l'intervalle de rafraîchissement existant");
-      clearInterval(refreshInterval.value);
-      refreshInterval.value = null;
-    }
-
-    console.log(
-      `🔄 Démarrage du rafraîchissement automatique toutes les ${
-        refreshIntervalMs / 1000
-      } secondes`
-    );
-
-    // Créer un nouvel interval
-    refreshInterval.value = setInterval(() => {
-      console.log("⏰ Rafraîchissement automatique déclenché");
-      refresh();
-    }, refreshIntervalMs);
-  };
-
-  /**
-   * Arrête le rafraîchissement automatique
-   */
-  const stopAutoRefresh = () => {
-    if (refreshInterval.value) {
-      console.log("🛑 Arrêt du rafraîchissement automatique");
-      clearInterval(refreshInterval.value);
-      refreshInterval.value = null;
-    }
-  };
+  // Le rafraîchissement automatique a été désactivé - les données ne se mettent à jour que lors d'un rafraîchissement manuel
 
   /**
    * Enrichit les clients avec les informations calculées (statut, jours restants, action)
@@ -398,10 +364,7 @@ export const useUsers = () => {
     return calculateAdvancedStats(users.value);
   });
 
-  // Nettoyer l'interval lors du démontage du composant
-  onUnmounted(() => {
-    stopAutoRefresh();
-  });
+  // Le rafraîchissement automatique a été désactivé
 
   return {
     // Données
@@ -416,12 +379,11 @@ export const useUsers = () => {
     // États
     loading: readonly(loading),
     error: readonly(error),
+    lastUpdate: readonly(lastUpdate),
 
     // Méthodes
     fetchUsers,
     fetchActiveUsers,
     refresh,
-    startAutoRefresh,
-    stopAutoRefresh,
   };
 };

@@ -5,8 +5,12 @@
     <div
       class="p-5 border-b border-slate-100 flex justify-between items-center"
     >
-      <h3 class="text-lg font-bold text-orion-primary">Actions du jour</h3>
-      <span class="text-xs text-slate-500">{{ clients.length }} client(s)</span>
+      <h3 class="text-lg font-bold text-orion-primary">
+        Actions du jour
+      </h3>
+      <span class="text-xs text-slate-500"
+        >{{ clients.length }} client(s)</span
+      >
     </div>
 
     <div class="overflow-x-auto">
@@ -113,7 +117,10 @@
       </table>
     </div>
 
-    <div v-if="clients.length === 0" class="p-8 text-center text-slate-500">
+    <div
+      v-if="clients.length === 0"
+      class="p-8 text-center text-slate-500"
+    >
       <p>Aucun client nécessitant une action aujourd'hui.</p>
     </div>
 

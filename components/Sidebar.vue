@@ -65,10 +65,10 @@
       </NuxtLink>
     </div>
 
-    <!-- Logout (optional) -->
-    <div class="mt-auto">
+    <!-- Déconnexion -->
+    <div class="mt-auto w-full px-2">
       <button
-        class="p-3 text-slate-400 hover:text-orion-danger hover:bg-red-50 rounded-xl transition-all"
+        class="w-full p-3 text-slate-400 hover:text-orion-danger hover:bg-red-50 rounded-xl transition-all"
         title="Déconnexion"
       >
         <i class="ph ph-sign-out text-2xl"></i>
@@ -179,7 +179,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
